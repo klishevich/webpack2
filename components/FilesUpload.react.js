@@ -28,7 +28,34 @@ var CourtCaseFilesUpload = React.createClass({
     }, 
     onDrop: function (files) {
       console.log('Received files: ', files);
-    },  
+      var IdFileType = this.state.IdFileType;
+      console.log('IdFileType: ', IdFileType);
+      this.handleUploadFile(IdFileType, files);
+        // files.forEach(function(file) {
+        //     file['IdFileType'] = IdFileType;
+        //     console.log(file);
+        // });
+    },
+    handleUploadFile: function (IdFileType, files) {
+        var myfiles = { myfiles: files };
+        console.log('myfiles', myfiles);
+        $.ajax({
+            url: '/File/Create',
+            dataType: 'json',
+            type: 'POST',
+            data: myfiles,
+            success: function(data) {
+                console.log('Success');
+                // this.setState({data: data});
+                // focusAndBlinkOnElement(item, '#'+Constants.ClassName, 'IdCourtCaseSession', false);
+            }.bind(this),
+            error: function(xhr, status, err) {
+                // console.error('/File/Create', status, err.toString());
+            }.bind(this),
+            processData: false,
+            contentType: false
+        });
+    },
     render: function() {
         return (
             <div className="view-content-container filesUpload">
