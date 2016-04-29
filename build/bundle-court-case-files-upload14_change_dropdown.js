@@ -48,12 +48,11 @@
 
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(32);
-	var FilesUpload = __webpack_require__(166);
+	var CourtCaseFilesUpload = __webpack_require__(166);
 
-	ReactDOM.render(React.createElement(FilesUpload, {
+	ReactDOM.render(React.createElement(CourtCaseFilesUpload, {
 		dropdownurl: document.getElementById('filesUpload').getAttribute("dropdownurl"),
-		category: document.getElementById('filesUpload').getAttribute("category"),
-		idname: document.getElementById('filesUpload').getAttribute("idname") }), document.getElementById('filesUpload'));
+		category: document.getElementById('filesUpload').getAttribute("category") }), document.getElementById('filesUpload'));
 
 /***/ },
 /* 1 */
@@ -20059,11 +20058,11 @@
 	var CommonSelect = __webpack_require__(167);
 	var Dropzone = __webpack_require__(169);
 
-	var FilesUpload = React.createClass({
-	    displayName: 'FilesUpload',
+	var CourtCaseFilesUpload = React.createClass({
+	    displayName: 'CourtCaseFilesUpload',
 
 	    getInitialState: function getInitialState() {
-	        return { fileTypeSelect: [], IdValue: '' };
+	        return { fileTypeSelect: [], IdFileType: '', FileTypeCode: '', FileTypeBCode: '' };
 	    },
 	    componentWillMount: function componentWillMount() {
 	        this.loadSelectFileType('?category=' + this.props.category);
@@ -20074,7 +20073,6 @@
 	            dataType: 'json',
 	            success: function (currentDictSelect) {
 	                if (this.isMounted()) {
-	                    console.log('currentDictSelect', currentDictSelect);
 	                    this.setState({ fileTypeSelect: currentDictSelect });
 	                }
 	            }.bind(this),
@@ -20089,10 +20087,10 @@
 	    },
 	    onDrop: function onDrop(files) {
 	        console.log('Received files: ', files);
-	        var IdValue = this.state.IdValue;
-	        console.log('IdValue: ', IdValue);
+	        var IdFileType = this.state.IdFileType;
+	        console.log('IdFileType: ', IdFileType);
 	        var postdata = new FormData();
-	        postdata.append('IdValue', IdValue);
+	        postdata.append('IdFileType', IdFileType);
 	        files.forEach(function (file) {
 	            postdata.append(file.name, file);
 	            // file['IdFileType'] = IdFileType;
@@ -20123,7 +20121,6 @@
 	        });
 	    },
 	    render: function render() {
-	        console.log('FilesUpload this.props', this.props);
 	        return React.createElement(
 	            'div',
 	            { className: 'view-content-container filesUpload' },
@@ -20145,8 +20142,9 @@
 	                    ),
 	                    React.createElement(CommonSelect, { selectId: this.state.IdFileType,
 	                        onSelectChange: this.handleSelectChange,
-	                        idname: this.props.idname,
-	                        selectName: 'IdValue',
+	                        selectName: 'IdFileType',
+	                        selectCode: 'FileTypeCode',
+	                        selectBCode: 'FileTypeBCode',
 	                        dictcommonselect: this.state.fileTypeSelect, alwaysUpdate: true })
 	                )
 	            ),
@@ -20171,7 +20169,7 @@
 	    }
 	});
 
-	module.exports = FilesUpload;
+	module.exports = CourtCaseFilesUpload;
 
 /***/ },
 /* 167 */
@@ -20195,7 +20193,9 @@
 	    this.oldSelectId = this.props.selectId;
 	  },
 	  change: function change(e) {
-	    this.props.onSelectChange(_defineProperty({}, this.props.selectName, e.target.value));
+	    var _props$onSelectChange;
+
+	    this.props.onSelectChange((_props$onSelectChange = {}, _defineProperty(_props$onSelectChange, this.props.selectName, e.target.value), _defineProperty(_props$onSelectChange, this.props.selectCode, e.target.code), _defineProperty(_props$onSelectChange, this.props.selectBCode, e.target.bcode), _props$onSelectChange));
 	  },
 	  shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
 	    //Если нужно всегда рэндерить компоненту, то передаем параметр alwaysUpdate={true}
@@ -20205,12 +20205,12 @@
 	    this.oldSelectId = nextProps.selectId;
 	  },
 	  render: function render() {
-	    console.log('CommonSelect this.props', this.props);
-	    var _this = this,
-	        selectNodes = this.props.dictcommonselect.map(function (item) {
+	    var selectNodes = this.props.dictcommonselect.map(function (item) {
 	      // item.id, item.value - то, что возвращается в сигнатуре json
 	      return React.createElement(CommonSelectItem, {
-	        value: item[_this.props.idname],
+	        selectId: item.id,
+	        selectCode: item.code,
+	        selectBCode: item.bcode,
 	        name: item.value,
 	        key: item.id });
 	    });
@@ -20246,10 +20246,9 @@
 	    displayName: 'CommonSelectItem',
 
 	    render: function render() {
-	        console.log('CommonSelectItem this.props', this.props);
 	        return React.createElement(
 	            'option',
-	            { value: this.props.value },
+	            { value: this.props.selectId, code: this.props.selectCode, bcode: this.props.selectBCode },
 	            this.props.name
 	        );
 	    }
