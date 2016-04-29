@@ -23,7 +23,6 @@ var CommonSelect = React.createClass({
     this.oldSelectId = nextProps.selectId;
   }, 
   render: function(){
-      console.log('CommonSelect this.props', this.props);
       var _this = this, selectNodes = this.props.dictcommonselect.map(function(item){ 
       // item.id, item.value - то, что возвращается в сигнатуре json
         return ( 

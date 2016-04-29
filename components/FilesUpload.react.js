@@ -4,7 +4,7 @@ var Dropzone = require('react-dropzone');
 
 var FilesUpload = React.createClass({
     getInitialState: function() {
-        return {fileTypeSelect: [], IdValue: ''};
+        return {fileTypeSelect: [], IdValue: '', Comment: '', Error: null};
     },
     componentWillMount: function() {
         this.loadSelectFileType('?category=' + this.props.category);
@@ -15,7 +15,6 @@ var FilesUpload = React.createClass({
             dataType: 'json',
             success: function(currentDictSelect) {
                 if (this.isMounted()) {
-                    console.log('currentDictSelect', currentDictSelect);
                     this.setState({ fileTypeSelect: currentDictSelect });
                 }
             }.bind(this),
@@ -30,10 +29,9 @@ var FilesUpload = React.createClass({
     }, 
     onDrop: function (files) {
         console.log('Received files: ', files);
-        var IdValue = this.state.IdValue;
-        console.log('IdValue: ', IdValue);
         var postdata = new FormData();
-        postdata.append('IdValue', IdValue);
+        postdata.append('IdValue', this.state.IdValue);
+        postdata.append('Comment', this.state.Comment);
         files.forEach(function(file) {
             postdata.append(file.name, file);
             // file['IdFileType'] = IdFileType;
@@ -50,6 +48,9 @@ var FilesUpload = React.createClass({
             data: postdata,
             success: function(data) {
                 console.log('Success', data);
+                if (data.error == true){
+                    this.setState({Error: data.errorMessage});
+                }
                 // this.setState({data: data});
                 // focusAndBlinkOnElement(item, '#'+Constants.ClassName, 'IdCourtCaseSession', false);
             }.bind(this),
@@ -63,11 +64,26 @@ var FilesUpload = React.createClass({
             contentType: false
         });
     },
+    handleChange: function(e) {
+        this.setState({ Comment: e.target.value });
+    },
+    renderError: function () {
+        if (this.state.Error) {
+            return (
+                <div className="row">
+                    <div className="col-xs-4 filesUpload-error"> 
+                        <div className="alert alert-danger" role="alert">{this.state.Error}</div>
+                    </div>
+                </div>
+            );
+        }
+        return (null);
+    },
     render: function() {
-      console.log('FilesUpload this.props', this.props);
         return (
             <div className="view-content-container filesUpload">
                 <h3>Загрузка файлов</h3>
+                {this.renderError()}
                 <div className="row">
                     <div className="col-xs-4 filesUpload-fileTypeSelect"> 
                         <label htmlFor="IdFileType">Тип файла</label>
@@ -83,6 +99,14 @@ var FilesUpload = React.createClass({
                         <Dropzone onDrop={this.onDrop}>
                             <div>Перетащите файлы сюда.</div>
                         </Dropzone>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col-xs-4 filesUpload-comment"> 
+                        <label htmlFor="IdFileType">Комментарий</label>
+                        <textarea className="form-control input-sm" rows="5" name="Comment" id="Comment" 
+                            style={{width: '100%'}} value={this.state.Comment} placeholder="Введите комментарий"
+                              onChange={this.handleChange} />
                     </div>
                 </div>
             </div>

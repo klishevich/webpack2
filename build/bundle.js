@@ -20063,7 +20063,7 @@
 	    displayName: 'FilesUpload',
 
 	    getInitialState: function getInitialState() {
-	        return { fileTypeSelect: [], IdValue: '' };
+	        return { fileTypeSelect: [], IdValue: '', Comment: '', Error: null };
 	    },
 	    componentWillMount: function componentWillMount() {
 	        this.loadSelectFileType('?category=' + this.props.category);
@@ -20074,7 +20074,6 @@
 	            dataType: 'json',
 	            success: function (currentDictSelect) {
 	                if (this.isMounted()) {
-	                    console.log('currentDictSelect', currentDictSelect);
 	                    this.setState({ fileTypeSelect: currentDictSelect });
 	                }
 	            }.bind(this),
@@ -20089,10 +20088,9 @@
 	    },
 	    onDrop: function onDrop(files) {
 	        console.log('Received files: ', files);
-	        var IdValue = this.state.IdValue;
-	        console.log('IdValue: ', IdValue);
 	        var postdata = new FormData();
-	        postdata.append('IdValue', IdValue);
+	        postdata.append('IdValue', this.state.IdValue);
+	        postdata.append('Comment', this.state.Comment);
 	        files.forEach(function (file) {
 	            postdata.append(file.name, file);
 	            // file['IdFileType'] = IdFileType;
@@ -20109,6 +20107,9 @@
 	            data: postdata,
 	            success: function (data) {
 	                console.log('Success', data);
+	                if (data.error == true) {
+	                    this.setState({ Error: data.errorMessage });
+	                }
 	                // this.setState({data: data});
 	                // focusAndBlinkOnElement(item, '#'+Constants.ClassName, 'IdCourtCaseSession', false);
 	            }.bind(this),
@@ -20122,8 +20123,28 @@
 	            contentType: false
 	        });
 	    },
+	    handleChange: function handleChange(e) {
+	        this.setState({ Comment: e.target.value });
+	    },
+	    renderError: function renderError() {
+	        if (this.state.Error) {
+	            return React.createElement(
+	                'div',
+	                { className: 'row' },
+	                React.createElement(
+	                    'div',
+	                    { className: 'col-xs-4 filesUpload-error' },
+	                    React.createElement(
+	                        'div',
+	                        { className: 'alert alert-danger', role: 'alert' },
+	                        this.state.Error
+	                    )
+	                )
+	            );
+	        }
+	        return null;
+	    },
 	    render: function render() {
-	        console.log('FilesUpload this.props', this.props);
 	        return React.createElement(
 	            'div',
 	            { className: 'view-content-container filesUpload' },
@@ -20132,6 +20153,7 @@
 	                null,
 	                'Загрузка файлов'
 	            ),
+	            this.renderError(),
 	            React.createElement(
 	                'div',
 	                { className: 'row' },
@@ -20165,6 +20187,22 @@
 	                            'Перетащите файлы сюда.'
 	                        )
 	                    )
+	                )
+	            ),
+	            React.createElement(
+	                'div',
+	                { className: 'row' },
+	                React.createElement(
+	                    'div',
+	                    { className: 'col-xs-4 filesUpload-comment' },
+	                    React.createElement(
+	                        'label',
+	                        { htmlFor: 'IdFileType' },
+	                        'Комментарий'
+	                    ),
+	                    React.createElement('textarea', { className: 'form-control input-sm', rows: '5', name: 'Comment', id: 'Comment',
+	                        style: { width: '100%' }, value: this.state.Comment, placeholder: 'Введите комментарий',
+	                        onChange: this.handleChange })
 	                )
 	            )
 	        );
@@ -20205,7 +20243,6 @@
 	    this.oldSelectId = nextProps.selectId;
 	  },
 	  render: function render() {
-	    console.log('CommonSelect this.props', this.props);
 	    var _this = this,
 	        selectNodes = this.props.dictcommonselect.map(function (item) {
 	      // item.id, item.value - то, что возвращается в сигнатуре json
@@ -20246,7 +20283,6 @@
 	    displayName: 'CommonSelectItem',
 
 	    render: function render() {
-	        console.log('CommonSelectItem this.props', this.props);
 	        return React.createElement(
 	            'option',
 	            { value: this.props.value },
