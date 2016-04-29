@@ -50,7 +50,9 @@
 	var ReactDOM = __webpack_require__(32);
 	var CourtCaseFilesUpload = __webpack_require__(166);
 
-	ReactDOM.render(React.createElement(CourtCaseFilesUpload, null), document.getElementById('CourtCaseFilesUpload'));
+	ReactDOM.render(React.createElement(CourtCaseFilesUpload, {
+		dropdownurl: document.getElementById('filesUpload').getAttribute("dropdownurl"),
+		category: document.getElementById('filesUpload').getAttribute("category") }), document.getElementById('filesUpload'));
 
 /***/ },
 /* 1 */
@@ -20059,54 +20061,74 @@
 	var CourtCaseFilesUpload = React.createClass({
 	    displayName: 'CourtCaseFilesUpload',
 
-	    //edit
 	    getInitialState: function getInitialState() {
 	        return { fileTypeSelect: [], IdFileType: '' };
 	    },
 	    componentWillMount: function componentWillMount() {
-	        this.loadSelectFileType('?category=ItemTypes');
+	        this.loadSelectFileType('?category=' + this.props.category);
 	    },
 	    loadSelectFileType: function loadSelectFileType(passedParams) {
 	        $.ajax({
-	            url: '/Tech/DropDownListByCategory' + passedParams,
+	            url: this.props.dropdownurl + passedParams,
 	            dataType: 'json',
 	            success: function (currentDictSelect) {
 	                if (this.isMounted()) {
 	                    this.setState({ fileTypeSelect: currentDictSelect });
-	                    // console.log(currentDictSelect);
 	                }
 	            }.bind(this),
 	            error: function (xhr, status, err) {
-	                console.error(this.props.url, status, err.toString());
+	                console.error(this.props.dropdownurl + passedParams, status, err.toString());
 	            }.bind(this)
 	        });
 	    },
 	    handleSelectChange: function handleSelectChange(item) {
-	        // console.log('handleSelectChange item');
-	        // console.log(item);
 	        this.setState(item);
 	    },
 	    onDrop: function onDrop(files) {
 	        console.log('Received files: ', files);
+	        var IdFileType = this.state.IdFileType;
+	        console.log('IdFileType: ', IdFileType);
+	        this.handleUploadFile(files, IdFileType);
+	        // files.forEach(function(file) {
+	        //     file['IdFileType'] = IdFileType;
+	        //     console.log(file);
+	        // });
+	    },
+	    handleUploadFile: function handleUploadFile(files, IdFileType) {
+	        // var roles = ["role1", "role2", "role3"];
+	        // var myfiles = { myfiles: files };
+	        var mydata = { IdTest: "11", Test: "test string", IdFileType: IdFileType, Files: files };
+	        console.log('mydata', mydata);
+	        $.ajax({
+	            url: '/File/Create',
+	            dataType: 'json',
+	            type: 'POST',
+	            data: mydata,
+	            success: function (data) {
+	                console.log('Success');
+	                // this.setState({data: data});
+	                // focusAndBlinkOnElement(item, '#'+Constants.ClassName, 'IdCourtCaseSession', false);
+	            }.bind(this),
+	            error: function (xhr, status, err) {
+	                // console.error('/File/Create', status, err.toString());
+	            }.bind(this)
+	        });
 	    },
 	    render: function render() {
-	        // console.log('FilesUpload render props, state');
-	        // console.log(this.props);
-	        // console.log(this.state);
 	        return React.createElement(
 	            'div',
-	            { className: 'view-content-container CCFilesUpload' },
+	            { className: 'view-content-container filesUpload' },
+	            React.createElement(
+	                'h3',
+	                null,
+	                'Загрузка файлов'
+	            ),
 	            React.createElement(
 	                'div',
 	                { className: 'row' },
 	                React.createElement(
 	                    'div',
-	                    { className: 'col-xs-4' },
-	                    React.createElement(
-	                        'h3',
-	                        null,
-	                        'Загрузка файлов'
-	                    ),
+	                    { className: 'col-xs-4 filesUpload-fileTypeSelect' },
 	                    React.createElement(
 	                        'label',
 	                        { htmlFor: 'IdFileType' },
@@ -20121,7 +20143,7 @@
 	                { className: 'row' },
 	                React.createElement(
 	                    'div',
-	                    { className: 'col-xs-4 dropzone' },
+	                    { className: 'col-xs-4 filesUpload-dropzone' },
 	                    React.createElement(
 	                        Dropzone,
 	                        { onDrop: this.onDrop },

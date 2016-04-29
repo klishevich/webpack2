@@ -20085,23 +20085,32 @@
 	        this.setState(item);
 	    },
 	    onDrop: function onDrop(files) {
-	        IdFileType = this.state.IdFileType;
 	        console.log('Received files: ', files);
+	        var IdFileType = this.state.IdFileType;
 	        console.log('IdFileType: ', IdFileType);
+	        this.handleUploadFile(files, IdFileType);
+	        // files.forEach(function(file) {
+	        //     file['IdFileType'] = IdFileType;
+	        //     console.log(file);
+	        // });
 	    },
-	    handleUploadFile: function handleUploadFile(IdFileType, files) {
+	    handleUploadFile: function handleUploadFile(files, IdFileType) {
+	        // var roles = ["role1", "role2", "role3"];
+	        // var myfiles = { myfiles: files };
+	        var mydata = { IdTest: "11", Test: "test string", IdFileType: IdFileType, Files: files };
+	        console.log('mydata', mydata);
 	        $.ajax({
 	            url: '/File/Create',
 	            dataType: 'json',
 	            type: 'POST',
-	            data: { IdFileType: IdFileType, files: files },
+	            data: mydata,
 	            success: function (data) {
 	                console.log('Success');
 	                // this.setState({data: data});
 	                // focusAndBlinkOnElement(item, '#'+Constants.ClassName, 'IdCourtCaseSession', false);
 	            }.bind(this),
 	            error: function (xhr, status, err) {
-	                console.error('/File/Create', status, err.toString());
+	                // console.error('/File/Create', status, err.toString());
 	            }.bind(this)
 	        });
 	    },
